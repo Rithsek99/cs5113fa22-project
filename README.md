@@ -1,9 +1,21 @@
 # cs5113fa22-project
 
 ## Development Schedule
+- completed architecture descrition [10/27] - 2h
+- spend 5h to design interface and write protoc file by [11/03]
+- spend 3h to write the first version logging by [11/17]
+- spend 12h to finish the project by [12/01]
+- spend 2h preparing the final presentation by [12/14]
 
+## Emoji Chooser
+- create a 2d array of N*N to initalize the board
+- each trainer will take different emoji from available human emoji
+- each pokemon will take different emoji from available animal emoji list
+- init N to be between 9 and 25
+- init P to be random of (5, N)
+- init T to be random of (5, N)
+this will create 1 server machine that control the board, P machines for P pokemon and T machines for Trainer.
 
-
-ake a realistic look at you schedule and your commitments and decide on how you will spend the time necessary to complete the project. You can use the milestones from the project spec to help guide this description. You should be as specific as possible.
-
-Create another section called ## Emoji Chooser. Write a description how you initalize the board. This information should include how you will assign emojis to trainer and each pokemon. You should describe how you will initialize the parameters N, P, and T where N is the size of the board, P is the number of pokemon, and T is the number of trainers. You should also describe how those parameters will create separate machines. That is, you should discuss how you will create the proper dockercompose.yml, Dockerfile, Protocol Buffer files.
+Dockercompose.yml: create (N+P+1) services that each sevice in N and P will communicate with 1 server service.
+Dockerfile: build on top of Ubuntu base image, install all the deps requriments and command to run node.py
+Protocol Buffer: create services that allow Trainer and Pokeman communicate with Server. 
