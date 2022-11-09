@@ -1,0 +1,34 @@
+syntax = 'proto3';
+
+package pokemonou;
+
+service Pokemonou {
+    rpc canMove (MoveRequest) returns (MoveResponse) {}
+    rpc completedMove (NewPlace) returns (NewPlace){}
+    rpc capture (CaptureRequest) returns (CaptureResponse){}
+}
+
+//
+
+//request to move and tell server if it is pokemon or trainer
+message MoveRequest { 
+    string who = 1;
+}
+
+//response to move request: 1 is yes, 0 is no
+message MoveResponse {
+    int32 north = 1;
+    int32 south = 2;
+    int32 east = 3;
+    int32 west = 4;
+    int32 northEast = 5;
+    int32 northWest = 6;
+    int32 southEast = 7;
+    int32 southWest = 8;
+}
+
+//tell server where the player is,(x,y) is the coordinates of the player
+message NewPlace {
+    int32 x = 1;
+    int32 y = 2;
+}
