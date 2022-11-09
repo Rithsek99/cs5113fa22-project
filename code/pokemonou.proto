@@ -3,12 +3,37 @@ syntax = 'proto3';
 package pokemonou;
 
 service Pokemonou {
+    //Ask server where is available place to move
     rpc canMove (MoveRequest) returns (MoveResponse) {}
+
+    //trainer/pokemon completed a move and send coordinator to server where it moves
     rpc completedMove (NewPlace) returns (NewPlace){}
+
+    //trainer call server if he/she can capture pokemon
     rpc capture (CaptureRequest) returns (CaptureResponse){}
+
+    //server tell pokemon if they are captured
+    rpc captured (isCaptured) returns (isCaptured){}
+
 }
 
-//
+// Server tells the pokemon that they captured by trainer x
+message isCaptured {
+    bool captured = 1;
+    string trainer = 2;
+}
+
+// call server if trainer with name can capture pokemon at (x, y) block
+message CaptureRequest {
+    string name = 1;
+    int32 x = 2;
+    int32 y = 3;
+}
+
+message CaptureResponse {
+    bool canCapture = 1;
+    repeated string pokemon = 2; //list of pokemon that can be captured
+}
 
 //request to move and tell server if it is pokemon or trainer
 message MoveRequest { 

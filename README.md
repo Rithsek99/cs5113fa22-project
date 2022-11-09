@@ -19,3 +19,6 @@ this will create 1 server machine that control the board, P machines for P pokem
 Dockercompose.yml: create (N+P+1) services that each sevice in N and P will communicate with 1 server service.
 Dockerfile: build on top of Ubuntu base image, install all the deps requriments and command to run node.py
 Protocol Buffer: create services that allow Trainer and Pokeman communicate with Server. 
+
+## Protoc detail
+
