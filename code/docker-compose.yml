@@ -1,24 +1,287 @@
-version: '3.7'
-
+version: "3.7"
 services:
   server:
-   build: .
-   hostname: server
-   container_name: server
-   networks:
-     - default
-  trainer:
-   build: .
-   hostname: trainer
-   container_name: trainer_
-   networks:
-     - default
-  pokemon:
-   build: .
-   hostname: pokemon
-   container_name: pokemon_
-   networks:
-     - default
-networks:
-  default:
-   driver: bridge
+    build: .
+    hostname: server
+    networks:
+      - default
+  trainer0:
+    build: .
+    hostname: trainer0
+    networks:
+      - default
+  trainer1:
+    build: .
+    hostname: trainer1
+    networks:
+      - default
+  trainer2:
+    build: .
+    hostname: trainer2
+    networks:
+      - default
+  trainer3:
+    build: .
+    hostname: trainer3
+    networks:
+      - default
+  trainer4:
+    build: .
+    hostname: trainer4
+    networks:
+      - default
+  trainer5:
+    build: .
+    hostname: trainer5
+    networks:
+      - default
+  trainer6:
+    build: .
+    hostname: trainer6
+    networks:
+      - default
+  trainer7:
+    build: .
+    hostname: trainer7
+    networks:
+      - default
+  trainer8:
+    build: .
+    hostname: trainer8
+    networks:
+      - default
+  trainer9:
+    build: .
+    hostname: trainer9
+    networks:
+      - default
+  trainer10:
+    build: .
+    hostname: trainer10
+    networks:
+      - default
+  trainer11:
+    build: .
+    hostname: trainer11
+    networks:
+      - default
+  trainer12:
+    build: .
+    hostname: trainer12
+    networks:
+      - default
+  trainer13:
+    build: .
+    hostname: trainer13
+    networks:
+      - default
+  trainer14:
+    build: .
+    hostname: trainer14
+    networks:
+      - default
+  trainer15:
+    build: .
+    hostname: trainer15
+    networks:
+      - default
+  trainer16:
+    build: .
+    hostname: trainer16
+    networks:
+      - default
+  trainer17:
+    build: .
+    hostname: trainer17
+    networks:
+      - default
+  trainer18:
+    build: .
+    hostname: trainer18
+    networks:
+      - default
+  trainer19:
+    build: .
+    hostname: trainer19
+    networks:
+      - default
+  trainer20:
+    build: .
+    hostname: trainer20
+    networks:
+      - default
+  trainer21:
+    build: .
+    hostname: trainer21
+    networks:
+      - default
+  trainer22:
+    build: .
+    hostname: trainer22
+    networks:
+      - default
+  trainer23:
+    build: .
+    hostname: trainer23
+    networks:
+      - default
+  trainer24:
+    build: .
+    hostname: trainer24
+    networks:
+      - default
+  trainer25:
+    build: .
+    hostname: trainer25
+    networks:
+      - default
+  trainer26:
+    build: .
+    hostname: trainer26
+    networks:
+      - default
+  trainer27:
+    build: .
+    hostname: trainer27
+    networks:
+      - default
+  pokemon0:
+    build: .
+    hostname: pokemon0
+    networks:
+      - default
+  pokemon1:
+    build: .
+    hostname: pokemon1
+    networks:
+      - default
+  pokemon2:
+    build: .
+    hostname: pokemon2
+    networks:
+      - default
+  pokemon3:
+    build: .
+    hostname: pokemon3
+    networks:
+      - default
+  pokemon4:
+    build: .
+    hostname: pokemon4
+    networks:
+      - default
+  pokemon5:
+    build: .
+    hostname: pokemon5
+    networks:
+      - default
+  pokemon6:
+    build: .
+    hostname: pokemon6
+    networks:
+      - default
+  pokemon7:
+    build: .
+    hostname: pokemon7
+    networks:
+      - default
+  pokemon8:
+    build: .
+    hostname: pokemon8
+    networks:
+      - default
+  pokemon9:
+    build: .
+    hostname: pokemon9
+    networks:
+      - default
+  pokemon10:
+    build: .
+    hostname: pokemon10
+    networks:
+      - default
+  pokemon11:
+    build: .
+    hostname: pokemon11
+    networks:
+      - default
+  pokemon12:
+    build: .
+    hostname: pokemon12
+    networks:
+      - default
+  pokemon13:
+    build: .
+    hostname: pokemon13
+    networks:
+      - default
+  pokemon14:
+    build: .
+    hostname: pokemon14
+    networks:
+      - default
+  pokemon15:
+    build: .
+    hostname: pokemon15
+    networks:
+      - default
+  pokemon16:
+    build: .
+    hostname: pokemon16
+    networks:
+      - default
+  pokemon17:
+    build: .
+    hostname: pokemon17
+    networks:
+      - default
+  pokemon18:
+    build: .
+    hostname: pokemon18
+    networks:
+      - default
+  pokemon19:
+    build: .
+    hostname: pokemon19
+    networks:
+      - default
+  pokemon20:
+    build: .
+    hostname: pokemon20
+    networks:
+      - default
+  pokemon21:
+    build: .
+    hostname: pokemon21
+    networks:
+      - default
+  pokemon22:
+    build: .
+    hostname: pokemon22
+    networks:
+      - default
+  pokemon23:
+    build: .
+    hostname: pokemon23
+    networks:
+      - default
+  pokemon24:
+    build: .
+    hostname: pokemon24
+    networks:
+      - default
+  pokemon25:
+    build: .
+    hostname: pokemon25
+    networks:
+      - default
+  pokemon26:
+    build: .
+    hostname: pokemon26
+    networks:
+      - default
+  pokemon27:
+    build: .
+    hostname: pokemon27
+    networks:
+      - default

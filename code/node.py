@@ -12,7 +12,7 @@ import pokemonou_pb2_grpc
 import configparser
 
 # Global variables
-global board, t, p, b, pokedex, path
+global board, t, p, b, pokedex, path_
 def create_board():
     global board
     board = {}
@@ -57,12 +57,15 @@ def create_board():
 
 # implement the Pokemonou service
 class Pokemonou(pokemonou_pb2_grpc.PokemonouServicer):
-    global board, b, p, pokedex, path
-    pokedex = {}
+    global board, b, p, pokedex, path_
+    pokedex = {} # key = trainer, value = {pokemon: (x, y)}, (x, y) is where the pokemon captured
+    path_ = {}
     def __init__(self):
         self.lock = 'server'
         self.board, self.b, self.p = create_board()
         self.pokemon_left = self.p
+        self.pokedex = pokedex
+        self.path = path_
  
     def check_board(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -85,7 +88,7 @@ class Pokemonou(pokemonou_pb2_grpc.PokemonouServicer):
                     mov_indicator.append(-1)
                 elif(self.board[(position[0], position[1])]['trainer'] != ''): # if the block contains trainer
                     mov_indicator.append(-1)
-                elif(self.board[(position[0], position[1])]['pokemon'] == {}): # if the block is empty
+                elif(self.board[(position[0], position[1])]['pokemon'] == []): # if the block is empty
                     mov_indicator.append(0)
                 else: # if the block contains pokemon
                     mov_indicator.append(1)
@@ -116,17 +119,26 @@ class Pokemonou(pokemonou_pb2_grpc.PokemonouServicer):
             return pokemonou_pb2.check_position(x = mov_indicator, lock=self.lock, alive=1, pokemon_left=self.pokemon_left, current_position=pos)
 
     def move(self, request, context):
+        hostname = request.hostname
         if(self.lock != request.hostname):
             return pokemonou_pb2.complete_move(success=0)
+        
         elif('trainer' in request.hostname):
             self.board[(request.cur_x, request.cur_y)]['trainer'] = ''
             self.board[(request.newx, request.newy)]['trainer'] = request.hostname
+            
+            if (not request.hostname in self.path):
+                self.path[request.hostname] = []
+                print(self.path[request.hostname])
+            pos = (request.newx, request.newy)
+            self.path[request.hostname].append(pos)
+            
             if (request.toCapture == 1):
-                # need dictionary to store list of pokemon captured by trainer
-                #print('number of pokemon in this block', len(self.board[(request.newx, request.newy)]['pokemon']))
-                pokedex[request.hostname] = {}
-                for pokemon in self.board[(request.newx, request.newy)]['pokemon']:
-                    pokedex[request.hostname][pokedex] = (request.newx, request.newy)
+                if not hostname in self.pokedex:
+                    self.pokedex[hostname] = {}
+                for poke in self.board[(request.newx, request.newy)]['pokemon']:
+                    self.pokedex[hostname][poke] = (request.newx, request.newy)   
+                
                 self.pokemon_left -= len(self.board[(request.newx, request.newy)]['pokemon'])
                 self.board[(request.newx, request.newy)]['pokemon'] = [] # clear the pokemon in the block
             self.lock = 'server'
@@ -135,27 +147,30 @@ class Pokemonou(pokemonou_pb2_grpc.PokemonouServicer):
         elif('pokemon' in request.hostname):
             self.board[(request.cur_x, request.cur_y)]['pokemon'].pop(request.hostname)
             self.board[(request.x, request.y)]['pokemon'][request.hostname] = request.hostname
+            # keep track of path
+            if (not hostname in self.path):
+                self.path[hostname] = []
+            self.path[hostname].append((request.newx, request.newy))
+            
             self.lock = 'server'
             self.print_board()
             return pokemonou_pb2.move_response(success=1)
 
     def list_pokemon(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        return pokemonou_pb2.captured_pokemon(pokemon_name=list(self.pokedex[request.hostname].keys()))
 
     def list_trainer(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
+        hostname = request.hostname
+        for key, value in self.pokedex.items():
+            if (hostname in value):
+                return pokemonou_pb2.trainer_info(trainer_name=key, pos = list(value[hostname]))
+            
+        return pokemonou_pb2.trainer_info(trainer_name='None', pos = [-1]) 
+  
     def path(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        hostname = request.hostname
+        #return pokemonou_pb2.path_info(path=self.path[hostname])
+        return pokemonou_pb2.path_info(pos='position')
     
     def print_board(self):
         # load config file
@@ -168,7 +183,7 @@ class Pokemonou(pokemonou_pb2_grpc.PokemonouServicer):
                 elif(self.board[(i, j)]['pokemon'] != []):
                     print('|', parser['pokemon'][self.board[(i, j)]['pokemon'][0]], end = '|')
                 else:
-                    print('__|', end = ' ')
+                    print('|__|', end = ' ')
             print()
 
 def serve():        
@@ -180,9 +195,10 @@ def serve():
     server.stop()
 
 async def trainer():
-    global pokedex
+    #global pokedex
     async with grpc.aio.insecure_channel('server:50051') as channel:
         flag = 1
+        hostname = socket.gethostname()
         while(flag > 0):
             stub = pokemonou_pb2_grpc.PokemonouStub(channel)
             # request to get its position
@@ -192,38 +208,55 @@ async def trainer():
             y = response.current_position[1]
             moves = [[x - 1, y - 1], [x - 1, y], [x - 1, y + 1], [x, y - 1], [x, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]]
             toCapture = 0
-            if 1 in response.x:
-                available_moves = [i for i, j in enumerate(response.x) if j == 1]
-                index = random.choice(available_moves)
-                toCapture = 1
-            elif 0 in response.x:
-                available_moves = [i for i, j in enumerate(response.x) if j == 0]
-                index = random.choice(available_moves)
-            status = await stub.move(pokemonou_pb2.move_position(cur_x = x, cur_y = y, newx = moves[index][0], newy = moves[index][1], hostname=socket.gethostname(), toCapture=toCapture),wait_for_ready=True)
-            if status.success == 1:
-                print("I made a move.")
-    #print(pokedex)
+            if flag:
+                if 1 in response.x:
+                    available_moves = [i for i, j in enumerate(response.x) if j == 1]
+                    index = random.choice(available_moves)
+                    toCapture = 1
+                elif 0 in response.x:
+                    available_moves = [i for i, j in enumerate(response.x) if j == 0]
+                    index = random.choice(available_moves)
+                status = await stub.move(pokemonou_pb2.move_position(cur_x = x, cur_y = y, newx = moves[index][0], newy = moves[index][1], hostname=socket.gethostname(), toCapture=toCapture),wait_for_ready=True)
+                if status.success == 1:
+                    print("I made a move.")
+            #else: # print list of pokemons that trainer capture before the game exit
+                #pokemon_captured = await stub.list_pokemon(pokemonou_pb2.name(hostname=socket.gethostname()))
+                #print('list of pokemone captured: ',pokemon_captured.pokemon_name)
+                #path = await stub.path(pokemonou_pb2.name(hostname=hostname))
+                #print('my path: ', path.pos)
+                
 async def pokemon():
     async with grpc.aio.insecure_channel('server:50051') as channel:
         alive = 1
+        hostname = socket.gethostname()
         while(alive > 0):
             stub = pokemonou_pb2_grpc.PokemonouStub(channel)
             # request to get its position
-            response = await stub.check_board(pokemonou_pb2.name(hostname=socket.gethostname()),wait_for_ready=True)
+            response = await stub.check_board(pokemonou_pb2.name(hostname=hostname),wait_for_ready=True)
             alive = response.alive
             x = response.current_position[0]
             y = response.current_position[1]
             moves = [[x - 1, y - 1], [x - 1, y], [x - 1, y + 1], [x, y - 1], [x, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]]
             toCapture = 0
+            
+            #if alive:
             if 1 in response.x:
                 available_moves = [i for i, j in enumerate(response.x) if j == 1]
                 index = random.choice(available_moves)
-                status = await stub.move(pokemonou_pb2.move_position(cur_x = x, cur_y = y, newx = moves[index][0], newy = moves[index][1], hostname=socket.gethostname(), toCapture=toCapture),wait_for_ready=True)
+                status = await stub.move(pokemonou_pb2.move_position(cur_x = x, cur_y = y, newx = moves[index][0], newy = moves[index][1], hostname=hostname, toCapture=toCapture),wait_for_ready=True)
             else:
-                status = await stub.move(pokemonou_pb2.move_position(cur_x = x, cur_y = y, newx = x, newy = y, hostname=socket.gethostname(), toCapture=toCapture),wait_for_ready=True)
-            
+                status = await stub.move(pokemonou_pb2.move_position(cur_x = x, cur_y = y, newx = x, newy = y, hostname=hostname, toCapture=toCapture),wait_for_ready=True)
+        
             if status.success == 1:
-                print("I made a move.")      
+                print("I made a move.")  
+                
+            if not alive:
+                info = await stub.list_trainer(pokemonou_pb2.name(hostname=hostname), wait_for_ready=True)
+                if info.pos != [-1]:
+                    print(f'Captured by {info.trainer_name} at position {tuple(info.pos)}') 
+                #path = await stub.path(pokemonou_pb2.name(hostname=hostname))
+                #print('my path: ', path.pos) 
+                  
 if __name__ == "__main__":
     if(socket.gethostname() == 'server'):
         serve()

@@ -3,57 +3,59 @@ syntax = 'proto3';
 package pokemonou;
 
 service Pokemonou {
-    //Ask server where is available place to move
-    rpc canMove (MoveRequest) returns (MoveResponse) {}
-
-    //trainer/pokemon completed a move and send coordinator to server where it moves
-    rpc completedMove (NewPlace) returns (NewPlace){}
-
-    //trainer call server if he/she can capture pokemon
-    rpc capture (CaptureRequest) returns (CaptureResponse){}
-
-    //server tell pokemon if they are captured
-    rpc captured (isCaptured) returns (isCaptured){}
-
+    rpc check_board (name) returns (check_position) {}
+    rpc move (move_position) returns (complete_move) {}
+    rpc list_pokemon (name) returns (captured_pokemon) {}
+    rpc list_trainer (name) returns (trainer_info) {}
+    rpc path (name) returns (path_info) {}
 }
 
-// Server tells the pokemon that they captured by trainer x
-message isCaptured {
-    bool captured = 1;
-    string trainer = 2;
+message name {
+    string hostname = 1;
 }
 
-// call server if trainer with name can capture pokemon at (x, y) block
-message CaptureRequest {
-    string name = 1;
-    int32 x = 2;
-    int32 y = 3;
+// x = [-1, 0, 1], -1 : can't move, 0 : can move, 1 : can move and capture
+// lock = "hostname", hostname of the trainer who locked the position
+// alive = [0, 1], 0 : dead, 1 : alive
+// pokemon_left = number of pokemon left on the board
+// current_position = [x, y], current position of the trainer/pokemon
+message check_position {
+    repeated int32 x = 1;
+    string lock = 2;
+    int32 alive = 3;
+    int32 pokemon_left = 4;
+    repeated int32 current_position = 5;
 }
 
-message CaptureResponse {
-    bool canCapture = 1;
-    repeated string pokemon = 2; //list of pokemon that can be captured
+// [x, y] = the position that trainer/pokemon want to move to
+// hostname = name of trainer/pokemon
+// toCapture = [0, 1], 0 : don't capture, 1 : capture for trainer only
+message move_position {
+    int32 cur_x = 1;
+    int32 cur_y = 2;
+    int32 newx = 3;
+    int32 newy = 4;
+    string hostname = 5;
+    int32 toCapture = 6;
 }
 
-//request to move and tell server if it is pokemon or trainer
-message MoveRequest { 
-    string who = 1;
+// success = [0, 1], 0 : fail, 1 : success
+message complete_move {
+    int32 success = 1;
 }
 
-//response to move request: 1 is yes, 0 is no
-message MoveResponse {
-    int32 north = 1;
-    int32 south = 2;
-    int32 east = 3;
-    int32 west = 4;
-    int32 northEast = 5;
-    int32 northWest = 6;
-    int32 southEast = 7;
-    int32 southWest = 8;
+// pokemon_name = list of pokemons that the trainer captured
+message captured_pokemon {
+    repeated string pokemon_name = 1;
 }
 
-//tell server where the player is,(x,y) is the coordinates of the player
-message NewPlace {
-    int32 x = 1;
-    int32 y = 2;
+// trainer_name = name of trainer that captured the pokemon
+message trainer_info{
+    string trainer_name = 1;
+    repeated int32 pos = 2;
+}
+
+// path = list of positions that the trainer has been to
+message path_info{
+    string pos = 1;
 }

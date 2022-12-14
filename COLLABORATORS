@@ -1,0 +1,9 @@
+Christan Grant, cgrant@ou.edu, Instructor of CS [4|5]113.
+DeHart, Jasmine M, dehart.jasmine@ou.edu, TA of CS[4|5]113.
+https://www.youtube.com/watch?v=dQK0VLahrDk, grpc and python Ping Pong example.
+https://grpc.github.io/grpc/python/, GRPC Documentation.
+https://github.com/grpc/grpc/tree/v1.20.0/examples/python/helloworld, hello-world example.
+Ajisegiri, SJ, oluwasijibomi.ajisegiri@ou.edu, discussed on high level task on chanel and connection between clients and serverhttps://grpc.github.io/grpc/python/grpc.html#server-object, gRPC python documentatio
+and some distributed systems problems to use for the project
+Aditya Rohan Singh, aditya.rohan.singh-1@ou.edu, discussed on high level of `locking` mechanism for the project, asynchronouse utilization and grpc services implementation
+Rajasekaran, Pradipkumar, pradipkumar.rajasekaran-1@ou.edu, discussed on high level of some grpc functionality and how to send array via grpc. 

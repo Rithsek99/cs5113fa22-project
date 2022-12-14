@@ -1,19 +1,17 @@
 FROM ubuntu:rolling
 
-MAINTAINER Rithsek Ngem
+MAINTAINER rithsek.ngem-1@ou.edu
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y locals && rm -rf /var/lib/apt/lists/* \
+    apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG en_US.utf8
 
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y python3-pip
-
-RUN apt-get install -y emacs nmap iputils-ping ssh htop slurm net-tools
+    apt-get upgrade -y \
+    && apt-get install -y python3-pip
 
 ENV GRPC_PYTHON_VERSION 1.15.0
 
@@ -29,9 +27,10 @@ COPY requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . /usr/src/app
 
-# Create the proto files
-# Run protoc --python_out=. --grpc_python_out=. --proto_path=. ./proto/*.proto
-RUN python3 -m grpc_tools.protoc -I./proto --python_out=. --grpc_python_out=. pokemonou.proto
+# Create the protobuf files
+# RUN protoc --python_out=. guessing_game.proto
+# Code below works similarly
+RUN python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. pokemonou.proto
 
 EXPOSE 22
 EXPOSE 80
@@ -40,4 +39,4 @@ EXPOSE 50050-50100
 ENV PYTHONUNBUFFERED = 1
 
 # Run the pokemonou game
-CMD ["python3", "pokemonou.py"]
+CMD ["python3", "node.py"]
